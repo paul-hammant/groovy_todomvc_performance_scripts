@@ -21,14 +21,11 @@ println "iteration,duration,findLastItemDuration,getItemText"
 for ( i in 1..1000 ) {
   def todo = "qwerty " + i
   def start = System.currentTimeMillis()
-  // there are many angular examples in one page
-  // add an entry
   todoField.sendKeys todo + Keys.RETURN
   def liStart = System.currentTimeMillis()
   def li = driver.findElement(By.xpath("//ul/li[position() = last()]"))
   def liDur = System.currentTimeMillis() - liStart
-  // loop through the todo items ..
-  def isTodoStart = System.currentTimeMillis()  
+  def isTodoStart = System.currentTimeMillis()
   assertThat(li.getText(), containsString(todo))
   def isTodoDur = System.currentTimeMillis() - isTodoStart
   li.findElement(By.tagName("input")).click()
