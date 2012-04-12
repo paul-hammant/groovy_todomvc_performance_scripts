@@ -1,6 +1,5 @@
 @Grapes([
  @Grab("org.seleniumhq.selenium:selenium-java:2.20.0"),
- @Grab("org.seleniumhq.selenium.fluent:fluent-selenium:1.6.3"), 
  @Grab("org.hamcrest:hamcrest-all:1.1"),
  @GrabExclude('xml-apis:xml-apis')
 ])
@@ -9,22 +8,15 @@ import org.openqa.selenium.By
 import org.openqa.selenium.firefox.FirefoxDriver
 import org.openqa.selenium.Keys
 import org.openqa.selenium.StaleElementReferenceException
-import org.seleniumhq.selenium.fluent.FluentWebDriverImpl
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertThat;
-import static org.seleniumhq.selenium.fluent.FluentBy.attribute
-import static org.seleniumhq.selenium.fluent.FluentBy.last
-import static org.seleniumhq.selenium.fluent.Period.secs
-
+import static org.hamcrest.CoreMatchers.equalTo
+import static org.hamcrest.Matchers.containsString
+import static org.junit.Assert.assertThat
 
 def driver = new FirefoxDriver()
-def fluent = new FluentWebDriverImpl(driver)
 
 driver.get "http://paul-hammant.github.com/angular_todo_app/"
 
-def form = fluent.div(attribute("ng-controller", "TodoCtrl"))
-
-def todoField = form.input(attribute("ng-model", "todoText"))
+def todoField = driver.findElement(By.xpath("//input[@ng-model = 'todoText']"))
 
 for ( i in 1..1000 ) {
   def todo = "qwerty " + i
@@ -32,12 +24,12 @@ for ( i in 1..1000 ) {
   // add an entry
   todoField.sendKeys todo + Keys.RETURN  	
   def liStart = System.currentTimeMillis()
-  def li = form.li(last(attribute("ng-repeat", "todo in todos")))
+  def li = driver.findElement(By.xpath("//li[@ng-repeat = 'todo in todos' and position() = last()]"))
   def liDur = System.currentTimeMillis() - liStart
   def isTodoStart = System.currentTimeMillis()  
-  li.getText().shouldContain(todo) // last one is the one we added, or should be.
+  assertThat(li.getText(), containsString(todo))
   def isTodoDur = System.currentTimeMillis() - isTodoStart
-  li.input().click()
+  li.findElement(By.tagName("input")).click()
   println "" + i + "," + (System.currentTimeMillis() - start) + "," + liDur + "," + isTodoDur
 }
 
